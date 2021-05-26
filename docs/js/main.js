@@ -2,39 +2,15 @@ let form = document.forms.myForm;
 let firstDate = form.elements.firstDate;
 let secondDate = form.elements.secondDate;
 let error1 = document.getElementById("error1");
+let dateMin = document.getElementById("dateMin");
+let dateMax = document.getElementById("dateMax");
+let text = document.getElementById("text");
+let result = document.getElementById("result");
+let arr = [];
+var myString = "Привет, мир. Как дела?";
+var splits = myString.split(" ", 3);
 
-let today = new Date().toISOString().split("T")[0];
-let text =document.getElementById('text');
-let result = document.getElementById('result');
-const currents = [];
-console.log(currents);
-const obj ={};
-console.log(today);
-if( JSON.parse(localStorage.getItem('arr') !== null) ){
-arrayUsd = JSON.parse(localStorage.getItem('arr'));
-console.log(arrayUsd);
-for(let i=0; i<arrayUsd.length; i++) {
-  arrayUsd[i] = JSON.parse(arrayUsd[i]);
-  
-}
-console.log(arrayUsd);
-
-arrayUsd.sort(function(obj1, obj2) {
-  // Сортировка по убыванию
-  return obj2.usd-obj1.usd;
-});
-console.log(arrayUsd[0]);
-for (let key in arrayUsd[0]) {
-
-  result.innerHTML  +=  key +':    '+ arrayUsd[0][key] +'<br> <br>' ;
-}
-for (let key in arrayUsd[arrayUsd.length-1]) {
-
-  text.innerHTML  +=  key +':    '+ arrayUsd[arrayUsd.length-1][key] +'<br> <br>' ;
-}
-localStorage.removeItem('arr');
-
-}
+console.log(splits);
 myForm.addEventListener("submit", (e) => {
   e.preventDefault();
   if (firstDate.value < secondDate.value === false) {
@@ -45,7 +21,7 @@ myForm.addEventListener("submit", (e) => {
   }
 
   if (firstDate.value < secondDate.value === false) {
-      error1.innerHTML =
+    error1.innerHTML =
       "Пожалуйста, введите корректную дату. Левая дата должна быть меньше правой.";
   } else if (firstDate.value < secondDate.value === true) {
     // удаляем индикатор ошибки, т.к. пользователь хочет ввести данные заново
@@ -59,36 +35,49 @@ myForm.addEventListener("submit", (e) => {
   ) {
     console.log(firstDate.value);
     console.log(secondDate.value);
-    let date =[];
-    start = Date.parse(firstDate.value);
-    end = Date.parse(secondDate.value);
-    console.log(start);
-    console.log(end);
-    for(let i= start; i <= end;i = i + 24 * 60 * 60 * 1000) {
-     date.push( new Date(i).toISOString().substr(0,10));
-    }
-    //date.push(firstDate.value);
-    //date.push(secondDate.value);
-    console.log(date);
-   
-
-    for (let i=0; i< date.length; i++) {
     fetch(
-      `https://www.nbrb.by/api/exrates/rates/usd?periodicity=0&parammode=2&ondate=${date[i]}`
+      `https://www.nbrb.by/api/exrates/rates/dynamics/145?&startDate=${firstDate.value}&endDate=${secondDate.value}`
     )
-      .then((response) => response.json())
-      .then((usd) => {
-        //obj.date = firstDate.value
-        obj.date = date[i];
-        obj.usd = usd.Cur_OfficialRate;
-        console.log(usd.Cur_OfficialRate);
-        currents.push(JSON.stringify(obj));
-        console.log(currents);
-       localStorage.setItem('arr', JSON.stringify(currents));  
-       location.reload();
-      });}
-     
-  } else { console.log('error');}
+      .then((results) => results.json())
+      .then((Date) => {
+        arr = Date;
+        for (let i = 0; i < arr.length; i++) {
+          arr[i].usd = arr[i].Cur_OfficialRate;
+          delete arr[i].Cur_ID;
+          delete arr[i].Cur_OfficialRate;
+        }
+        console.log(arr);
+
+        let moneyUSD = [];
+        for (let i = 0; i < arr.length; i++) {
+          moneyUSD.push(arr[i].usd);
+        }
+        moneyUSD.sort(function (a, b) {
+          return b - a;
+        });
+        let max = [];
+        for (let i = 0; i < arr.length; i++) {
+          max = arr.filter(function (elem) {
+            return elem.usd === moneyUSD[0];
+          });
+        }
+        console.log(max[0].Date);
+        let dateMax1 = max[0].Date.split("T00:00:00");
+
+        let min = [];
+        for (let i = 0; i < arr.length; i++) {
+          min = arr.filter(function (elem) {
+            return elem.usd === moneyUSD[moneyUSD.length - 1];
+          });
+        }
+        let dateMin1 = min[0].Date.split("T00:00:00");
+        dateMax.innerHTML = `${dateMax1[0]}`;
+        dateMin.innerHTML = `${dateMin1[0]}`;
+        result.innerHTML = `${moneyUSD[0]}`;
+        text.innerHTML = `${moneyUSD[moneyUSD.length - 1]}`;
+        console.log(moneyUSD);
+      });
+  }
 });
 secondDate.oninput = function () {
   if (firstDate.value < secondDate.value === false) {
@@ -105,4 +94,4 @@ firstDate.oninput = function () {
   } else {
     document.getElementById("error1").innerHTML = "";
   }
-};  
+};

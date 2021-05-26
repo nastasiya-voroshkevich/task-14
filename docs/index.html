@@ -30,6 +30,13 @@ input:valid+span:after {
        margin-left: 10px;
         color: red;
       }
+      #dateMin, #dateMax {
+        margin-left: 10px;
+      }
+    .money, #text, #result{
+      margin: 10px;
+      display: flex;
+    }
     </style>
   </head>
   <body>
@@ -46,10 +53,10 @@ input:valid+span:after {
     </div>
      <input type="submit" value="Рассчитать">
     </form>
-    <h3>Минимальный курс:</h3>
-       <div id="text"></div>
-    <h3>Максимальный курс:</h3>
- <div id="result"></div>
+    <h3>Минимальный курс USD:</h3>
+        <div class="money">На дату:<div id="dateMin"></div></div><div id="text"></div>
+    <h3>Максимальный курс USD:</h3>
+ <div class="money">На дату:<div id="dateMax"></div></div><div id="result"></div>
     <script src="./js/main.js"></script>
   </body>
 </html>
