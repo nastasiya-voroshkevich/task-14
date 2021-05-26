@@ -7,10 +7,7 @@ let dateMax = document.getElementById("dateMax");
 let text = document.getElementById("text");
 let result = document.getElementById("result");
 let arr = [];
-var myString = "Привет, мир. Как дела?";
-var splits = myString.split(" ", 3);
 
-console.log(splits);
 myForm.addEventListener("submit", (e) => {
   e.preventDefault();
   if (firstDate.value < secondDate.value === false) {
